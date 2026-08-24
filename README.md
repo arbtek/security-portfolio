@@ -6,7 +6,7 @@ Documented cloud security investigations, built in a live Azure tenant
 Target role: Cybersecurity Engineer
 Currently: Security Operations Engineer
 Contact: setesham (at) proton (dot) me · https://www.linkedin.com/in/siavashetesham/
-Website: www.siavashetesham.com
+Website: siavashetesham.com
 
 ## Investigations
 | # | Title | Focus | Write-up |
