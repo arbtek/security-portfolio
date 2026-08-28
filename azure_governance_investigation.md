@@ -103,6 +103,14 @@ The investigation included screenshots of:
 
 Lab answers have been blurred or cropped from all published screenshots.
 
+## What broke / what surprised me. 
+
+An active policy does not represent a preventive control; the naming policy existed and detected the violation; however, I still needed to inspect the parameters to understand why the deployment succeeded.
+
+## What I learned. 
+
+Naming conventions help investigators identify anomalous resources at scale, and legitimate contributor access can still introduce risk when preventive governance controls are incomplete. Lastly, don't ship test environments at the end of the day on Friday.  
+
 ## Conclusion
 
 The investigation determined that the intern deployed a test resource using temporary Contributor access. Azure Policy detected the resulting naming violation but did not prevent it because the applicable assignment was configured with the `Audit` effect rather than `Deny`.
