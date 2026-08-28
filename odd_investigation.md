@@ -21,6 +21,8 @@ Most resource groups followed a consistent structure containing a resource-group
 
 The exact resource-group name has been withheld because it is a lab answer.
 
+<img width="1887" height="598" alt="naming_convention" src="https://github.com/user-attachments/assets/95e84664-64bc-4808-a5c6-113df1082ed9" />
+
 ### 2. Inspected the deployed resource and its metadata
 
 I opened the non-compliant resource group and reviewed its contents. The group contained a single resource associated with the intern’s test environment.
@@ -29,6 +31,8 @@ I then inspected the resource’s Tags blade. An intern-specific tag connected t
 
 I withheld the tag value from this write-up to preserve the lab exercise.
 
+<img width="1889" height="878" alt="tags" src="https://github.com/user-attachments/assets/32875392-5f7e-4c3f-87c6-a39cc0e10e97" />
+
 ### 3. Traced the deployment
 
 I reviewed the resource group’s Deployments blade to determine how the resource was provisioned.
@@ -36,6 +40,8 @@ I reviewed the resource group’s Deployments blade to determine how the resourc
 The Azure Resource Manager deployment record showed the deployment’s status, configuration inputs, and creation timeline. This established a traceable provisioning event and connected the resource to the intern’s deployment activity.
 
 I withheld the deployment name and timestamp because they are answers to the lab.
+
+<img width="1891" height="635" alt="deployed_resource" src="https://github.com/user-attachments/assets/a409808b-ce45-49bc-8cb9-730e35d2bf30" />
 
 ### 4. Reviewed policy compliance
 
@@ -46,6 +52,8 @@ This demonstrated that the policy successfully detected the violation. However, 
 ### 5. Identified the governance control failure
 
 I opened the applicable policy assignment and reviewed its parameters. The naming policy’s effect was configured as `Audit`.
+
+<img width="1883" height="647" alt="policy_compliance" src="https://github.com/user-attachments/assets/f14c44d6-8b5e-4f36-8c11-c4746d43af24" />
 
 An `Audit` effect records a compliance violation but does not block the underlying request. A `Deny` effect would have rejected the non-compliant deployment.
 
