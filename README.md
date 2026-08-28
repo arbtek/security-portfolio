@@ -3,15 +3,15 @@
 Documented cloud security investigations, built in a live Azure tenant
 (Mad Hat Labs, a multi-user training environment).
 
-Target role: Cybersecurity Engineer
+Target role: Cloud Security Engineer
 Currently: Security Operations Engineer
 Contact: setesham (at) proton (dot) me · https://www.linkedin.com/in/siavashetesham/
-Website: siavashetesham.com
+Website: [portfolio](https://siavashetesham.com/)
 
 ## Investigations
 | # | Title | Focus | Write-up |
 |---|-------|-------|----------|
-| 1 | Operation Dead Deploy | Governance forensics, deployment audit trail | [odd_investigation.md ](https://github.com/arbtek/security-portfolio/blob/main/odd_investigation.md)|
+| 1 | Operation Dead Deploy | Governance forensics, deployment audit trail | [Investigation](https://github.com/arbtek/security-portfolio/blob/main/odd_investigation.md)|
 | 2 | The Stolen Identity | App registration attack kill chain (Entra ID) | coming, week 2 |
 | 3 | Privilege Audit | RBAC and least privilege | coming, week 3 |
 | 4 | Spin Up and Lock Down | Compute attack surface | coming, week 4 |
