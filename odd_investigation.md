@@ -4,19 +4,12 @@
 
 ## Scenario
 
-A junior intern received temporary Contributor access to deploy a test environment for an internal experiment. The deployment was completed late Friday afternoon without being validated against the organization’s governance standards. On Monday morning, I investigated the environment to determine what was created, trace the deployment, and identify why Azure Policy did not prevent the violation.
+A junior intern received temporary Contributor access to deploy a test environment for an internal experiment. The intern completed the deployment late Friday afternoon without validating it against the organization’s governance standards. On Monday morning, I investigated the environment to determine what was created, trace the deployment, and identify why Azure Policy did not prevent the violation.
 
 ## Environment
 
-* Microsoft Azure
 * Live, multi-user Azure training tenant
-* Mad Hat Labs subscription
 * Reader-level investigator access
-* Azure Resource Groups
-* Azure Resource Manager deployments
-* Resource tags
-* Azure Policy compliance and assignments
-* Observation-only investigation; no resources or policies were modified
 
 ## Investigation
 
@@ -24,9 +17,9 @@ A junior intern received temporary Contributor access to deploy a test environme
 
 I began by reviewing the resource groups within the subscription and comparing their names against the organization’s documented naming convention.
 
-Most followed a consistent structure containing a resource-group prefix, workload identifier, environment designation, region, and instance number. One resource group did not follow this pattern, making it a clear governance outlier requiring further investigation.
+Most resource groups followed a consistent structure containing a resource-group prefix, workload identifier, environment designation, region, and instance number. One resource group did not follow this pattern, making it a clear governance outlier requiring further investigation.
 
-The exact resource-group name has been withheld because it is an answer to the lab.
+The exact resource-group name has been withheld because it is a lab answer.
 
 ### 2. Inspected the deployed resource and its metadata
 
@@ -34,15 +27,15 @@ I opened the non-compliant resource group and reviewed its contents. The group c
 
 I then inspected the resource’s Tags blade. An intern-specific tag connected the resource to the temporary deployment and provided useful ownership context. Although the intern applied the expected tag, the surrounding resource configuration still violated the organization’s naming standard.
 
-The tag value has been withheld to preserve the lab exercise.
+I withheld the tag value from this write-up to preserve the lab exercise.
 
 ### 3. Traced the deployment
 
 I reviewed the resource group’s Deployments blade to determine how the resource was provisioned.
 
-The Azure Resource Manager deployment record provided evidence of the deployment’s status, configuration inputs, and creation timeline. This established a traceable provisioning event and connected the resource to the intern’s deployment activity.
+The Azure Resource Manager deployment record showed the deployment’s status, configuration inputs, and creation timeline. This established a traceable provisioning event and connected the resource to the intern’s deployment activity.
 
-The deployment name and timestamp have been withheld because they are answers to the lab.
+I withheld the deployment name and timestamp because they are answers to the lab.
 
 ### 4. Reviewed policy compliance
 
@@ -56,7 +49,7 @@ I opened the applicable policy assignment and reviewed its parameters. The namin
 
 An `Audit` effect records a compliance violation but does not block the underlying request. A `Deny` effect would have rejected the non-compliant deployment.
 
-I concluded that the policy was operating as configured: it detected the violation but allowed the deployment because it was not configured as a preventive control.
+I concluded the policy operated as configured: it detected the violation but allowed the deployment because it was not configured as a preventive control.
 
 ## Findings
 
