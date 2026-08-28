@@ -29,7 +29,7 @@ I then inspected the resource’s Tags blade. An intern-specific tag connected t
 
 I withheld the tag value from this write-up to preserve the lab exercise.
 
-<img width="1889" height="878" alt="tags" src="https://github.com/user-attachments/assets/32875392-5f7e-4c3f-87c6-a39cc0e10e97" />
+<img width="1891" height="635" alt="deployed_resource" src="https://github.com/user-attachments/assets/61281f51-bd3b-4b83-a07f-ca28feff3310" />
 
 ### 3. Traced the deployment
 
