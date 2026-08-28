@@ -21,8 +21,6 @@ Most resource groups followed a consistent structure containing a resource-group
 
 The exact resource-group name has been withheld because it is a lab answer.
 
-<img width="1887" height="598" alt="naming_convention" src="https://github.com/user-attachments/assets/95e84664-64bc-4808-a5c6-113df1082ed9" />
-
 ### 2. Inspected the deployed resource and its metadata
 
 I opened the non-compliant resource group and reviewed its contents. The group contained a single resource associated with the intern’s test environment.
@@ -49,11 +47,13 @@ I examined the resource group’s Policies blade and found that the naming-conve
 
 This demonstrated that the policy successfully detected the violation. However, detection alone did not explain why Azure allowed the deployment to succeed.
 
+<img width="1883" height="647" alt="policy_compliance" src="https://github.com/user-attachments/assets/262dbbe4-9010-4352-94b5-9a17bbd51fa4" />
+
 ### 5. Identified the governance control failure
 
 I opened the applicable policy assignment and reviewed its parameters. The naming policy’s effect was configured as `Audit`.
 
-<img width="1883" height="647" alt="policy_compliance" src="https://github.com/user-attachments/assets/f14c44d6-8b5e-4f36-8c11-c4746d43af24" />
+<img width="1887" height="598" alt="naming_convention" src="https://github.com/user-attachments/assets/866aedef-71cb-46b6-9578-b25fa02daa8d" />
 
 An `Audit` effect records a compliance violation but does not block the underlying request. A `Deny` effect would have rejected the non-compliant deployment.
 
