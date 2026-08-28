@@ -29,7 +29,7 @@ I then inspected the resource’s Tags blade. An intern-specific tag connected t
 
 I withheld the tag value from this write-up to preserve the lab exercise.
 
-<img width="1891" height="635" alt="deployed_resource" src="https://github.com/user-attachments/assets/61281f51-bd3b-4b83-a07f-ca28feff3310" />
+<img width="1889" height="878" alt="tags" src="https://github.com/user-attachments/assets/8b31c63e-5a53-45fc-87d7-0a3df5ea9f45" />
 
 ### 3. Traced the deployment
 
@@ -39,7 +39,7 @@ The Azure Resource Manager deployment record showed the deployment’s status, c
 
 I withheld the deployment name and timestamp because they are answers to the lab.
 
-<img width="1891" height="635" alt="deployed_resource" src="https://github.com/user-attachments/assets/a409808b-ce45-49bc-8cb9-730e35d2bf30" />
+<img width="1891" height="635" alt="deployed_resource" src="https://github.com/user-attachments/assets/59153f41-d9f6-41d5-95f8-d73d01f880ef" />
 
 ### 4. Reviewed policy compliance
 
