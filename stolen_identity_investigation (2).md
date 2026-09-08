@@ -11,7 +11,7 @@
 
 The attacker did not break through Azure with some exotic zero-day. They phished an employee from accounting.
 
-The employee entered a password into a convincing fake login page and completed MFA. The attacker stole the resulting session token. MFA worked; the attacker stole the result.
+The employee entered a password into a convincing fake login page and completed MFA. The attacker stole the resulting session token. MFA worked; the attacker stole the result (This bypasses Conditional Access Policies). This lets the attacker sign in normally without triggering alarms that alert the security team. 
 
 That would already have been bad enough, but the employee was still an owner of a legacy enterprise application. The assignment had survived long after the business reason for it had apparently expired. The attacker used those owner rights to create a new client secret, authenticate as the application's service principal, and inherit its live Microsoft Graph application permissions.
 
@@ -41,6 +41,8 @@ That is the first important distinction in this investigation: directory role an
 
 The password got the attacker to the door. The stale owner assignment handed over the keys.
 
+<img width="1310" height="896" alt="entry" src="https://github.com/user-attachments/assets/5ac5be02-a1a5-476e-8648-9211e0952c30" />
+
 ## Objective 2: Escalate
 
 ### Where I looked
@@ -51,7 +53,7 @@ I moved to **API permissions**, followed by **Certificates & secrets**.
 
 The legacy application had live Microsoft Graph application permissions with admin consent. The visible permissions included `Directory.Read.All` and `User.Read.All`.
 
-Application permissions matter because the app acts as itself. There is no human user in the client-credentials flow. If the application can prove its identity with a valid credential, Entra issues an app-only token containing the permissions already granted to that service principal.
+Application permissions matter because the app acts on its own behalf. No human user is involved in the client-credentials flow. If the application can prove its identity with a valid credential, Entra issues an app-only token containing the permissions already granted to that service principal.
 
 The attacker used the compromised employee's owner rights to add a client secret directly to the legacy app. Under **Certificates & secrets**, I found the new credential. Its expiration date was set in 2099.
 
@@ -59,11 +61,15 @@ A secret expiring in 2099 is not a serious expiration policy. It is optimism for
 
 With that secret, the attacker no longer needed to keep signing in as the phished employee. They could authenticate programmatically as the service principal and request app-only tokens whenever needed.
 
-This was the escalation: a compromised standard user became control over a privileged workload identity.
+This was the escalation: a compromised standard user gained control over a privileged workload identity.
 
-![Microsoft Entra API permissions showing admin-consented application permissions](public/projects/stolen-identity/api-permissions.png)
+<img width="1495" height="694" alt="api_permissions" src="https://github.com/user-attachments/assets/721212c0-2ec7-4510-bbac-df12fbc7f3a0" />
 
-*Figure 1. The legacy application's Microsoft Graph permissions were application permissions and had admin consent. This made the permissions live and defined the blast radius of the stolen app credential.*
+*The legacy application's Microsoft Graph permissions were application permissions and had admin consent. This made the permissions live and defined the blast radius of the stolen app credential.*
+
+<img width="1308" height="716" alt="escalate" src="https://github.com/user-attachments/assets/ad4c6a54-418b-4a37-baec-d7f32a5e99f2" />
+
+*The legacy application's client secret was set not to expire until the end of the century.*
 
 ## Objective 3: Pivot
 
@@ -75,13 +81,15 @@ I reviewed the legacy application's **Owners** list, then opened the second app 
 
 The attacker had created a new app registration and added its service principal as an owner of the legacy application.
 
-The first client secret gave the attacker access. The ownership pivot gave them a way to recover that access after partial cleanup.
+The first client secret gave the attacker access. The ownership pivot lets them recover that access after partial cleanup.
 
 If a defender found the original secret and removed it, the rogue owner could create another credential. Rotating one secret would solve the visible problem while leaving the authority that created it untouched. That is not remediation. It is mowing the weed and leaving the root.
 
 This also exposed another dangerous default: standard users can register applications in Entra unless the tenant changes that setting. The feature exists for legitimate development. The attacker was not offended by its intended purpose.
 
 The rogue app functioned as a shadow administrator over the legacy application. It would not appear in a directory-role review, because it did not require a privileged directory role. The privilege lived in the relationship between the two application objects.
+
+<img width="1337" height="691" alt="pivot" src="https://github.com/user-attachments/assets/a1241329-ea68-4286-ae35-35d1bb67f53c" />
 
 ## Objective 4: Persist
 
@@ -91,15 +99,17 @@ I opened **Expose an API** on the legacy application.
 
 ### What I found
 
-The attacker had created a custom delegated scope.
+The attacker had created a custom delegated scope. This is because the attacker understands that it is standard practice to rotate all secrets and passwords for all accounts/services implicated in a breach.
 
 The **Expose an API** configuration tells Entra that an application can operate as a secured backend resource that other applications may request permission to call. In this case, the attacker had already created the other application.
 
-The scope was not a magic token and it did not automatically inherit the legacy application's Graph permissions. What it created was a second authorization path. The rogue client could now request delegated access to the legacy application's backend through an OAuth consent flow.
+The scope wasn't a magic token, and it didn't automatically inherit the legacy application's Graph permissions. It created a second authorization path. The rogue client could now request delegated access to the legacy application's backend through an OAuth consent flow.
 
 That distinction matters. An exposed scope is a doorway, not proof that someone walked through it. The risk becomes severe if the trusted backend accepts the delegated request and then uses its own higher privilege without properly checking the caller, user, tenant, scope, and requested action.
 
 The attacker was building a backup plan: if the app-only credential was discovered, the rogue application could launch a consent-phishing campaign against another signed-in employee.
+
+<img width="1356" height="805" alt="expose_an_api" src="https://github.com/user-attachments/assets/1fd665a2-5e54-4a33-bac7-ddf43b3e5127" />
 
 ## Objective 5: Loot
 
@@ -119,9 +129,9 @@ In the OAuth authorization-code flow, the redirect URI is where Microsoft sends 
 
 That produced the consent-phishing URL.
 
-The victim did not have to type a password into another obviously suspicious page. The victim could already be signed in on a managed corporate device, having satisfied MFA and device requirements. They would see a real Microsoft consent prompt. If they clicked **Accept**, Entra would send the authorization code to the attacker's registered redirect URI, where the rogue application could exchange it for a delegated access token.
+The victim did not have to type a password into another obviously suspicious page. The victim could already be signed in on a managed corporate device and have satisfied MFA and device requirements. They would see a real Microsoft consent prompt. If they clicked **Accept**, Entra would send the authorization code to the attacker's registered redirect URI, where the rogue application could exchange it for a delegated access token.
 
-The counterfeit part was the request. The login and consent machinery were genuine. This is precisely why the technique is so effective: the attacker borrows the credibility of the identity provider and invites the victim to authorize the theft personally.
+The counterfeit part was the request. The login and consent machinery were genuine. This is why the technique is so effective: the attacker borrows the identity provider's credibility and invites the victim to authorize the theft personally.
 
 ## Why not just phish the password again?
 
@@ -137,7 +147,7 @@ When the victim approves delegated access, Entra creates an `OAuth2PermissionGra
 - Revoking sign-in sessions does not delete the grant.
 - Enforcing MFA does not delete the grant.
 
-Those are still necessary containment actions for the compromised user. They simply do not remove the application's authorization. The malicious grant must be found and revoked separately.
+Those containment actions are still necessary for the compromised user. They simply do not remove the application's authorization. You must find and revoke the malicious grant separately.
 
 Deleting the grant prevents new tokens from being issued under that consent. Access tokens already issued can remain valid until they expire. The exact response, therefore, is not “reset the password and declare victory.” It is:
 
@@ -214,21 +224,7 @@ A standard user's stale owner assignment became control over a privileged worklo
 
 That changed how I think about identity reviews. It is not enough to ask who the administrators are. You also have to ask what they own, what owns what, which credentials those objects trust, and which permissions have already been granted.
 
-The other surprise was how incomplete the familiar containment checklist can be. Password reset, session revocation, and MFA enforcement sound decisive because they are decisive against a narrow class of problems. They do not erase application consent. The grant sits in the directory, perfectly valid and entirely indifferent to the confidence with which someone closes the incident ticket.
-
-## Skills demonstrated
-
-- Microsoft Entra app-registration and service-principal analysis
-- OAuth 2.0 client-credentials and authorization-code flow reasoning
-- Delegated versus application permission analysis
-- Identity attack-path reconstruction
-- Application ownership and consent-grant review
-- Severity-ranked incident remediation
-- Public-safe technical documentation
-
-## Resume project line
-
-Reconstructed a five-stage OAuth consent-phishing kill chain in a live Azure tenant, tracing MFA-satisfied session theft, app-only escalation through an attacker-minted secret, a rogue application ownership pivot, persistence through a custom exposed API scope, and authorization-code delivery to an attacker-controlled redirect URI; delivered severity-ranked remediation including explicit OAuth grant revocation.
+The other surprise was how incomplete the familiar containment checklist can be. Password reset, session revocation, and MFA enforcement sound decisive because they address a narrow class of problems. They do not erase application consent. The grant sits in the directory, perfectly valid and entirely indifferent to the confidence with which someone closes the incident ticket.
 
 ## References
 
