@@ -85,8 +85,7 @@ An Azure role assignment references a principal's object ID, not its display nam
 
 The lab did not demonstrate surviving tokens or exploitation. The evidence also does not show that an attacker could create a new account with an arbitrarily chosen object ID. Reusing a display name does not establish identity continuity. If an original identity is restored, review its associated access as part of restoration rather than assuming it is safe.
 
-![Sanitized JSON preserving the empty principalName, User type, and Reader role]<img width="903" height="289" alt="02-orphaned-reader" src="https://github.com/user-attachments/assets/fbc0aeb5-6173-4f9d-b892-e38c0a9f9628" />
-
+<img width="903" height="289" alt="02-orphaned-reader" src="https://github.com/user-attachments/assets/fbc0aeb5-6173-4f9d-b892-e38c0a9f9628" />
 
 *Figure 2. The supplied export retained a Reader assignment for the lab's deleted account. The empty name, principal type, role, and resource type remain visible; identifiers, timestamps, paths, and the challenge answer are removed.*
 
@@ -123,8 +122,7 @@ I reviewed the resource-group assignment export, which included assignment state
 
 The later PIM capture showed an eligible **Member** assignment under **My roles → Groups**. That is group-membership eligibility, a distinction worth preserving when explaining how the audit account obtained access. The capture alone does not enumerate the group's complete resource entitlements.
 
-![PIM Groups view showing eligible Member assignment with the group name redacted]<img width="926" height="381" alt="04-pim-eligibility" src="https://github.com/user-attachments/assets/bd152876-3ffc-4d53-ac67-0377b113604b" />
-
+<img width="926" height="381" alt="04-pim-eligibility" src="https://github.com/user-attachments/assets/bd152876-3ffc-4d53-ac67-0377b113604b" />
 
 *Figure 4. Eligible group membership in PIM. Permanent here describes the eligibility shown in this view; it does not establish a permanently active resource privilege. The group name is removed.*
 
