@@ -61,8 +61,7 @@ The repetition made the account a priority for least-privilege review. Repeated 
 
 The cleanup question is more subtle than removing a few duplicate rows. An explicit child-scope assignment can remain after a parent assignment is removed. Conversely, removing child assignments may leave the account's broader inherited access unchanged. I would review those grants together against the account's actual responsibilities.
 
-![Redacted IAM export with repeated Owner rows labeled USER-A](<img width="1108" height="736" alt="01-iam-baseline" src="https://github.com/user-attachments/assets/2333c4a6-d10c-4b14-879a-34cad6a3cfd9" />
-)
+<img width="1108" height="736" alt="01-iam-baseline" src="https://github.com/user-attachments/assets/2333c4a6-d10c-4b14-879a-34cad6a3cfd9" />
 
 *Figure 1. Repeated Owner assignments in the supplied baseline. USER-A is an added anonymized label for the same account; names, scope paths, IDs, and descriptions are removed.*
 
@@ -112,8 +111,7 @@ authorizationresources
 
 Resource Graph can query across multiple accessible subscriptions. It does not bypass RBAC, and a directory-level selection does not grant tenant-wide visibility. I treated the results as evidence of the scopes the account could inspect, not proof that inaccessible areas were clear. [Reference](https://learn.microsoft.com/en-us/azure/governance/resource-graph/overview)
 
-![Resource Graph inventory query with 83 results and identifiers redacted]<img width="1900" height="878" alt="03-resource-graph" src="https://github.com/user-attachments/assets/586948d4-059f-4c31-9ab4-93597a342dfc" />
-
+<img width="1900" height="878" alt="03-resource-graph" src="https://github.com/user-attachments/assets/586948d4-059f-4c31-9ab4-93597a342dfc" />
 
 *Figure 3. The broad role-assignment query and its actual result count. Principal IDs, assignment IDs, tenant details, and exact scope values are redacted. The query shown is unfiltered by principal.*
 
@@ -145,7 +143,7 @@ I used the lab's authorized activation path to continue into the additional reso
 
 My audit account held temporary Operative access. The Owner assignment examined below belonged to the separate finding under investigation.
 
-![Resource-group Check access view showing active time-bound Operative and eligible assignment states]<img width="936" height="863" alt="05-effective-access" src="https://github.com/user-attachments/assets/9e20b3ea-d9a1-456a-844d-55d6c576eb80" />
+<img width="936" height="863" alt="05-effective-access" src="https://github.com/user-attachments/assets/9e20b3ea-d9a1-456a-844d-55d6c576eb80" />
 
 *Figure 5. The audit account's access states at the final resource group. The active time-bound Operative row is distinct from the separate Owner assignment under investigation. Account, group, and resource names are removed.*
 
@@ -153,8 +151,7 @@ The accompanying resource-group export contained the **Owner** assignment used t
 
 That condition is material. An Owner label should not automatically be described as unrestricted access delegation when the assignment contains a relevant condition. The condition shown limits the matching role-assignment operations; it is not evidence that all resource-management authority has been reduced to a narrow operational role. Evaluate the role, scope, and condition together. [Reference](https://learn.microsoft.com/en-us/azure/role-based-access-control/delegate-role-assignments-portal)
 
-![Redacted Owner export excerpt preserving condition version and role-assignment condition expression]<img width="1217" height="207" alt="06-owner-evidence" src="https://github.com/user-attachments/assets/0227275d-728b-4477-8962-83b4bb061b76" />
-
+<img width="1217" height="207" alt="06-owner-evidence" src="https://github.com/user-attachments/assets/0227275d-728b-4477-8962-83b4bb061b76" />
 
 *Figure 6. The final export's Owner row and condition. Lab identifiers and the answer are removed. The remaining GUIDs are Microsoft's public built-in role-definition identifiers, preserved to keep the condition interpretable.*
 
