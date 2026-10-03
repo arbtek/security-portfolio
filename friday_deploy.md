@@ -1,20 +1,18 @@
-# The Friday Deploy: Azure Pre-Production Security Review
+# The Friday Deploy: Azure Pre-Production Security Deploy Review
 
-**Author:** Siavash Sean Etesham  
-**Exercise:** Mad Hat Labs · Chapter 4, Compute Fundamentals  
 **Environment:** Live, multi-user Azure training tenant  
 **Access:** Reader for the deployment under review  
 **Review disposition:** Hold production promotion pending corrective work and validation
 
-I reviewed a newly deployed notification workload against the training environment's established production baseline. The review covered region placement, workload identity, storage exposure, and inbound network access. My deliverable was a prioritized remediation plan, with demonstrated anonymous data access placed ahead of configuration improvements.
+I reviewed a newly deployed notification workload against the training environment's established production baseline. The review covered region placement, workload identity, storage exposure, and inbound network access. My deliverable was a prioritized remediation plan, with demonstrated anonymous data access prioritized over configuration improvements.
 
-This is a pre-production review. The production baseline is a reference stack within the lab; this report does not describe a customer incident or claim that I changed a production environment. Resource names, exact locations, identifiers, endpoints, deployment timestamps, and challenge answers are withheld.
+This is a pre-production review. The production baseline is a reference stack within the lab; this report does not describe a customer incident or claim that I changed a production environment. I withheld resource names, exact locations, identifiers, endpoints, deployment timestamps, and challenge answers.
 
 ## The Call: What Gets Fixed Today?
 
-> Stop anonymous access to the exposed file first, then verify that it no longer loads without authorization. Hold the release until the remaining deployment gaps are corrected and tested.
+> Stop anonymous access to the exposed file first, then verify that it no longer loads without authorization. Hold the release until you correct and test the remaining deployment gaps.
 
-My ranking followed the lab's principle: **exposure beats hygiene; active beats potential.** I could demonstrate that a file was readable from an unauthenticated session. That made it the first containment task. The other findings also mattered, but the available evidence did not demonstrate equivalent data disclosure through them.
+My ranking followed the lab's principle: **exposure beats hygiene; active beats potential.** I could demonstrate that a file was readable from an unauthenticated session. That made it the first containment task. The other findings also mattered, but the available evidence did not show equivalent data disclosure.
 
 | Order | Finding | Why this order | Recommended timing |
 | --- | --- | --- | --- |
@@ -27,15 +25,15 @@ This order reflects the evidence and workload purpose. I would reassess it if te
 
 ## Context and Scope
 
-The scenario involved a notification service deployed late on a Friday and reviewed before promotion to production. Its intended job was scheduled processing rather than serving public requests.
+The scenario involved a notification service deployed late on a Friday and reviewed before promotion to production. Its intended job was scheduled processing, not serving public requests.
 
-I had Reader access to the review scope. I inspected configuration, compared it with the reference deployment, and performed the lab-authorized anonymous read check. Changes to access controls, identity, application connections, and region placement were recommendations for an authorized owner.
+I had Reader access to the review scope. I inspected configuration, compared it with the reference deployment, and performed the lab-authorized anonymous read check. I recommended changes to access controls, identity, application connections, and region placement for an authorized owner.
 
 No written deployment standard was provided. I derived a provisional baseline from the working reference stack. A working configuration is useful evidence of the platform's intended pattern, but it still needs owner confirmation before becoming a formal standard.
 
 ## Method: Compare the Deployment, Then Test the Exposure
 
-I used five questions to structure the review: where is the workload, how does it authenticate, where does its data sit, who can reach it, and what gets fixed first?
+I used five questions to structure the review: where the workload lives, how it authenticates, where its data sits, who can reach it, and what gets fixed first.
 
 | Review area | Reference pattern | New deployment observation | Evidence used |
 | --- | --- | --- | --- |
@@ -49,7 +47,7 @@ The distinction between configuration and behavior was most important for storag
 
 ## The Where: Is It in the Right Place?
 
-**Observed.** The new Function App was running on an App Service plan in a different region from the reference Function App. The scenario placed the platform's dependent data in its standard region.
+**Observed. The new Function App ran on an App Service plan in a different region than the reference Function App. The scenario placed the platform's dependent data in its standard region.
 
 **Verified.** I compared the region fields in the application overview pages. I did not measure dependency latency or inspect a billing statement.
 
@@ -65,7 +63,7 @@ The distinction between configuration and behavior was most important for storag
 
 **Why it matters.** Workload identity can replace application-managed credentials for supported connections. The review still needs to establish how the app actually authenticates; an absent identity alone does not answer that question.
 
-**Recommended action.** Have the owner inspect the application's connections and code, attach the approved user-assigned identity, and grant only required permissions. Update supported connections to use it, validate operation, then remove obsolete credentials. Rotate or revoke a credential if exposure is confirmed. Functions host storage and individual bindings can need different permissions, so one generic storage role should not be assumed sufficient. [Microsoft Functions connection guidance](https://learn.microsoft.com/en-us/azure/azure-functions/manage-connections)
+**Recommended action.** Have the owner inspect the application's connections and code, attach the approved user-assigned identity, and grant only required permissions. Update supported connections to use it, validate operation, then remove obsolete credentials. Rotate or revoke a credential if you confirm exposure. Functions host storage and individual bindings may need different permissions, so one generic storage role is not enough. [Microsoft Functions connection guidance](https://learn.microsoft.com/en-us/azure/azure-functions/manage-connections)
 
 ## The Leak: Where Does Its Data Sit?
 
@@ -73,7 +71,7 @@ The distinction between configuration and behavior was most important for storag
 
 **Verified.** I copied the file URL from its properties and opened it in a separate browser session where I was signed in to no account. The file loaded without a sign-in prompt. The exercise described this as a direct blob URL without a token; a signed URL or other supplied authorization would not demonstrate anonymous access.
 
-**Why it matters.** This was demonstrated data exposure. It was not proof of third-party access, malicious download, anonymous listing of the container, or public write access. Blob-level anonymous access permits reads of known blob URLs without necessarily allowing enumeration. Effective access also depends on the storage account's anonymous-access setting. [Microsoft anonymous-access guidance](https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-configure)
+**Why it matters.** This was demonstrated data exposure. It did not prove third-party access, malicious download, anonymous listing of the container, or public write access. Blob-level anonymous access permits reads of known blob URLs without necessarily allowing enumeration. Effective access also depends on the storage account's anonymous-access setting. [Microsoft anonymous-access guidance](https://learn.microsoft.com/en-us/azure/storage/blobs/anonymous-read-access-configure)
 
 **Recommended action.** Make the affected container private immediately. Where no legitimate public-data use exists, disallow anonymous blob access at the storage-account level after checking dependencies. Retest the same unsigned URL from a clean session and confirm the data is unavailable. Review available access logs and the exposed content to assess possible impact; rotate secrets only if they were actually present or otherwise exposed.
 
