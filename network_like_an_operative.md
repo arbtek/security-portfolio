@@ -1,6 +1,6 @@
 # Network Like an Operative: Explaining an Azure Private Endpoint Path
 
-**Mad Hat Week Five | Azure networking | Read-only investigation**  
+**Azure networking**  
 **Author:** Siavash Sean Etesham  
 **Published:** October 16, 2026
 
@@ -12,7 +12,7 @@ The main finding: a forced-tunnel default route is not proof of universal inspec
 
 > “Our new service can reach the customer-data storage account, but I don't understand why or how. Can someone walk me through the network path?”
 
-My task was to answer that question from configuration, with Reader access to the lab resource group. I made no network changes. The lab recorded all five hops as completed. This publication preserves the reasoning and redacted evidence without publishing challenge answers.
+My task was to answer the application team's question above. This publication preserves the reasoning and redacted evidence without publishing challenge answers.
 
 ## The trace
 
