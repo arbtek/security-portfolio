@@ -131,7 +131,9 @@ The most useful next step in a production environment is to compare that configu
 
 ## References
 
-The investigation narrative is my own account of the Mad Hat Week Five lab. Microsoft documentation supports the platform behavior discussed above.
+Mad Hat 5.6 LAB: Network Like an Operative. 
+
+Microsoft documentation supports the platform behavior discussed above.
 
 1. [Microsoft Learn: Network security groups](https://learn.microsoft.com/en-us/azure/virtual-network/network-security-groups-overview)
 2. [Microsoft Learn: Manage network policies for private endpoints](https://learn.microsoft.com/en-us/azure/private-link/disable-private-endpoint-network-policy)
