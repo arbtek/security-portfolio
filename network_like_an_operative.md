@@ -129,10 +129,6 @@ The most useful next step in a production environment is to compare that configu
 
 **Skills demonstrated:** Azure VNet and subnet analysis, NSG rule interpretation, UDR and longest-prefix reasoning, private endpoint inspection, private DNS correlation, read-only investigation, and technical ticket communication.
 
-## Publication and redaction
-
-Four Azure portal screenshots are included. Three quiz-answer screenshots are excluded. We replaced sensitive pixels before exporting fresh PNGs; these are not removable annotation overlays. We withheld subscription identifiers, resource names, environment-specific addresses, and challenge answers. I visually inspected the images, ran OCR for known identifiers, and exported them without text or EXIF metadata. Original screenshots and the source PDF are not included in this publication.
-
 ## References
 
 The investigation narrative is my own account of the Mad Hat Week Five lab. Microsoft documentation supports the platform behavior discussed above.
