@@ -18,43 +18,43 @@ My task was to answer that question from configuration, with Reader access to th
 
 ### 1. The VNet: establish the source
 
-I opened the VNet's subnet configuration and located the workload subnet. It occupied a defined slice of the VNet's private address space, with both an NSG and a route table attached. Those associations established the starting point for the investigation and the controls to inspect next. The private endpoint address recorded later belonged to this same workload subnet. Resource-group membership was the scope of my review, not a network boundary that permitted traffic.
+I opened the VNet's subnet configuration and located the workload subnet. It occupied a defined slice of the VNet's private address space and had both an NSG and a route table attached. Those associations established the starting point for the investigation and the next controls to inspect. The private endpoint address recorded later belonged to this same workload subnet. My review focused on resource-group membership, not a network boundary that permitted traffic.
 
-![Redacted subnet configuration showing address-range columns and NSG and route-table associations.](assets/network-like-an-operative/01_vnet.png)
+<img width="1596" height="160" alt="01_vnet" src="https://github.com/user-attachments/assets/341e617d-6476-447c-b286-7d6a02ad6a5a" />
 
 *Evidence 1: The workload is the second subnet row. Names and address ranges are withheld; the control associations remain visible.*
 
 ### 2. The NSG: distinguish inbound restrictions from outbound permission
 
-I inspected the workload subnet's NSG in both directions. Inbound TCP 443 was allowed from one specified source at priority 310, followed by an Internet-sourced deny at priority 4000. The screenshot matters: that deny targets the `Internet` service tag, rather than every possible source, and Azure's default VNet inbound allow remains below it. On the outbound side, there were no custom rules. The default `AllowVnetOutBound` rule at priority 65000 permits matching VNet traffic, which explains permission at this NSG for the private endpoint connection. A separate workload NIC NSG, if present, would also need to permit the flow. [1]
+I inspected the workload subnet's NSG in both directions. Inbound TCP 443 was allowed from one specified source at priority 310, followed by an Internet-sourced deny at priority 4000. The screenshot matters: that deny targets the `Internet` service tag, rather than every possible source, and Azure's default VNet inbound allow remains below it. On the outbound side, there were no custom rules. The default `AllowVnetOutBound` rule at priority 65000 permits matching VNet traffic, which explains the NSG permission for the private endpoint connection. If present, a separate workload NIC NSG would also need to permit the flow. [1]
 
-![Redacted NSG rules preserving directions, priorities, service tags, and allow and deny actions.](assets/network-like-an-operative/02_nsg.png)
+<img width="1623" height="590" alt="02_nsg" src="https://github.com/user-attachments/assets/0d16ae39-612d-4198-94d1-7d5d906b15fe" />
 
 *Evidence 2: Inbound source restriction and Internet deny coexist with Azure's default outbound VNet allow.*
 
 ### 3. The route: explain the apparent exception
 
-I followed the subnet's route-table association and inspected the default UDR. Its destination was `0.0.0.0/0` and its next-hop type was `Virtual appliance`. That route handles destinations for which no more-specific applicable route wins; it does not prove every packet crosses the appliance. Azure's private endpoint host route is `/32`, so it takes precedence over this `/0` default. That explains the lab's direct endpoint path. The screenshot captures the configured UDR, not a workload effective-route listing or firewall logs; the routing conclusion is a configuration-based explanation supported by Azure's documented behavior. [2][3]
+I followed the subnet's route-table association and inspected the default UDR. Its destination was `0.0.0.0/0`, and its next-hop type was `Virtual appliance`. That route handles destinations for which no more-specific route applies; it doesn't guarantee every packet crosses the appliance. Azure's private endpoint host route is `/32`, so it takes precedence over this `/0` default. That explains the lab's direct endpoint path. The screenshot captures the configured UDR, not a workload effective-route listing or firewall logs; the routing conclusion is a configuration-based explanation supported by Azure's documented behavior. [2][3]
 
-![Redacted default UDR showing destination 0.0.0.0/0 and next-hop type Virtual appliance.](assets/network-like-an-operative/03_route.png)
+<img width="1901" height="320" alt="03_route" src="https://github.com/user-attachments/assets/623b287d-ad38-41a7-82fc-b6f1fb78ce18" />
 
 *Evidence 3: The forced-tunnel default route is present. Its specific next-hop address is withheld.*
 
 ### 4. The private endpoint: identify the private service entry point
 
-I located the storage private endpoint and inspected its DNS configuration, which paired a private address with the Blob storage FQDN. The endpoint address fell within the workload subnet's recorded range. The lab notes and scenario also record public network access as disabled on the storage account. Together, these explain a private path to the selected storage service through Azure Private Link. The PaaS service itself is not a VM moved into the subnet; the endpoint is its private network entry point. Private connectivity still leaves storage authentication and authorization requirements in force. [4]
+I located the storage private endpoint and inspected its DNS configuration, which paired a private address with the Blob storage FQDN. The endpoint address fell within the workload subnet's recorded range. The lab notes and scenario also record that the storage account has public network access disabled. Together, these explain a private path to the selected storage service through Azure Private Link. The PaaS service itself is not a VM moved into the subnet; the endpoint is its private network entry point. Private connectivity still requires storage authentication and authorization. [4]
 
 ### 5. The name: connect the hostname to the endpoint
 
-I compared the endpoint mapping with the private-zone A record recorded in my notes. Both pointed to the same private address. The relevant zone is `privatelink.blob.core.windows.net`. The application uses the normal Blob service hostname; resolution follows its private-link alias and obtains the endpoint address through the private DNS path. A linked zone or suitable DNS forwarding configuration makes that answer available to the workload. The supplied screenshot shows the endpoint's DNS integration, while the separate zone record-set view and workload lookup were not captured. DNS resolves the destination before the storage connection begins. [4][5]
+I compared the endpoint mapping with the private-zone A record recorded in my notes. Both pointed to the same private address. The relevant zone is `privatelink.blob.core.windows.net`. The application uses the normal Blob service hostname; resolution follows its private-link alias and obtains the endpoint address through the private DNS path. A linked zone or suitable DNS forwarding configuration makes that answer available to the workload. The supplied screenshot shows the endpoint's DNS integration, but it does not capture the separate zone record set or the workload lookup. DNS resolves the destination before the storage connection begins. [4][5]
 
-![Redacted Blob private endpoint DNS configuration with the standard private DNS zone visible.](assets/network-like-an-operative/04_private_endpoint_dns.png)
+<img width="1595" height="425" alt="04_private_endpoint_dns" src="https://github.com/user-attachments/assets/d2e9a846-bced-4503-b703-8aa0f308696d" />
 
 *Evidence 4: Endpoint address-to-FQDN mapping and private DNS integration. Exact addresses, names, and identifiers are removed.*
 
 ## The path in one diagram
 
-![Diagram separating DNS resolution from the private data path and the fallback route through the appliance.](assets/network-like-an-operative/network-path.svg)
+<img width="998" height="614" alt="network-path" src="https://github.com/user-attachments/assets/348c94ae-3caf-4757-9271-812bb02859ff" />
 
 The five “hops” are investigation layers, rather than five routers in series. The NSG filters traffic, routing selects the path, and DNS supplies the destination address. Private Link carries the storage connection over Microsoft's network without using the storage public endpoint. [4]
 
@@ -75,7 +75,7 @@ flowchart TD
 
 ## The answer to the application team
 
-Your application can reach storage because the storage hostname resolves through private DNS to a private endpoint inside the workload subnet. The subnet NSG has no custom outbound restrictions, and its default VNet outbound rule permits matching private traffic. For the endpoint destination, the more-specific `/32` route takes precedence over the `/0` route to the appliance. The endpoint then connects privately to Blob storage, so disabling the storage public endpoint does not remove this path. This explains the lab's reported connectivity and inspection bypass; it is not a claim that I captured packets or proved firewall-log absence. A workload DNS lookup and effective-route check would confirm the active path.
+Your application can reach storage because the storage hostname resolves through private DNS to a private endpoint inside the workload subnet. The subnet NSG has no custom outbound restrictions, and its default VNet outbound rule permits matching private traffic. For the endpoint destination, the more-specific `/32` route takes precedence over the `/0` route to the appliance. The endpoint then connects privately to Blob storage, so disabling the storage public endpoint does not remove this path. This explains the lab's reported connectivity and inspection bypass; it does not claim I captured packets or proved the firewall logs were absent. A workload DNS lookup and effective-route check would confirm the active path.
 
 ## What I would flag
 
@@ -123,15 +123,15 @@ The following are proposed checks for an authorized operator. They are not compl
 
 I completed the five-hop lab and turned the app team's vague connectivity question into a layered explanation from configuration. The result was a written ticket response, not a remediation claim or a production penetration test.
 
-Two lessons stood out. First, a default route is a starting point for investigation, not a guarantee about every destination. Second, inbound exposure, outbound permission, name resolution, routing, and storage authorization answer different questions. Keeping them separate makes troubleshooting faster and the explanation easier for another team to act on.
+Two lessons stood out. First, a default route is a starting point for investigation, not a guarantee about every destination. Second, inbound exposure, outbound permission, name resolution, routing, and storage authorization answer different questions. Keeping them separate speeds troubleshooting and makes the explanation easier for another team to act on.
 
-The most useful next step in a production environment would be to compare that configuration explanation with results from the workload itself. Clear evidence boundaries are part of completing the investigation, especially when the initial access is read-only.
+The most useful next step in a production environment is to compare that configuration explanation with the workload's results. Clear evidence boundaries are part of completing the investigation, especially when the initial access is read-only.
 
 **Skills demonstrated:** Azure VNet and subnet analysis, NSG rule interpretation, UDR and longest-prefix reasoning, private endpoint inspection, private DNS correlation, read-only investigation, and technical ticket communication.
 
 ## Publication and redaction
 
-Four Azure portal screenshots are included. Three quiz-answer screenshots are excluded. Sensitive pixels were replaced before fresh PNGs were exported; these are not removable annotation overlays. Subscription identifiers, resource names, environment-specific addresses, and challenge answers are withheld. The images were visually inspected, checked with OCR for known identifiers, and exported without text or EXIF metadata. Original screenshots and the source PDF are not included in this publication.
+Four Azure portal screenshots are included. Three quiz-answer screenshots are excluded. We replaced sensitive pixels before exporting fresh PNGs; these are not removable annotation overlays. We withheld subscription identifiers, resource names, environment-specific addresses, and challenge answers. I visually inspected the images, ran OCR for known identifiers, and exported them without text or EXIF metadata. Original screenshots and the source PDF are not included in this publication.
 
 ## References
 
