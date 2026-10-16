@@ -15,7 +15,7 @@ Website: [portfolio](https://siavashetesham.com/)
 | 2 | The Stolen Identity | App registration attack kill chain (Entra ID) | [Investigation](https://github.com/arbtek/security-portfolio/blob/main/stolen_identity_investigation.md) |
 | 3 | Privilege Audit | RBAC and least privilege | [Audit](https://github.com/arbtek/security-portfolio/blob/main/privilege_audit.md) |
 | 4 | Spin Up and Lock Down | Compute attack surface | [Review](https://github.com/arbtek/security-portfolio/blob/main/friday_deploy.md) |
-| 5 | Network the Operative | Network segmentation | coming, week 5 |
+| 5 | Network the Operative | Network segmentation | [Investigation](https://github.com/arbtek/security-portfolio/blob/main/network_like_an_operative.md) |
 | 6 | Bucket Looting | Storage exposure hunting | coming, week 6 |
 | 7 | Find the Anomaly | Log analysis and KQL | coming, week 7 |
 | 8 | Hunt the Threat | SIEM operations (Sentinel) | coming, week 8 |
