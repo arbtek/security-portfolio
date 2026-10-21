@@ -7,9 +7,9 @@ Target role: Cloud Security Engineer
 
 Currently: Security Operations & Infrastructure Engineer
 
-Contact: setesham at proton dot me · 
+Contact: setesham at proton dot me
 
-[[LinkedIn URL](https://www.linkedin.com/in/siavashetesham/)]
+[[LinkedIn](https://www.linkedin.com/in/siavashetesham/)]
 
 ## Investigations
 | # | Title | Focus | Write-up |
