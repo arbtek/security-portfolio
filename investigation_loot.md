@@ -5,20 +5,17 @@
 
 ### Investigation summary
 
-A developer wanted to know what their application could reach through a connection string stored in Azure Key Vault, how the data was accessible, and whether it was exposed to the internet.
+A developer asked me via Slack how their application reaches the customer data. 
 
-I traced the primary storage account through its authentication settings, managed identity permissions, private endpoint, and Key Vault secret. The configuration supported the intended private, identity-based access pattern. The more significant finding came from reviewing the rest of the resource group: a separate storage account contained a customer export that could be listed and read without authentication.
-
-The primary account's controls still protected that account. They did not protect the export stored elsewhere.
+I reviewed the primary storage account's authentication settings, managed identity permissions, private endpoint, and Key Vault secret. The configuration supported the intended private, identity-based access pattern. The more significant finding came after reviewing the pipeline. While reviewing the resource group that housed the primary storage account, I found a separate storage account containing a customer export that could be accessed via the internet.
 
 <img width="960" height="540" alt="storage-contrast" src="https://github.com/user-attachments/assets/7700cf17-112c-4c74-81dd-fe68e054d2a1" />
 
-
 ### Scope and authority
 
-This was an authorized training environment with lab data. My access consisted of **Reader** on the resource group and **Key Vault Secrets User** on the designated vault. The exercise permitted inspection and secret retrieval, with no configuration changes.
+This was an authorized training environment with lab data. My access consisted of **Reader** on the resource group and **Key Vault Secrets User** on the designated vault.
 
-I reviewed the resource inventory, storage properties, role assignments, private endpoint configuration, and the designated secret. The lab also authorized an unauthenticated browser check against the second account. The remediation and detection recommendations below are not deployments; I did not deploy them.
+I reviewed the resource group, storage account properties, role assignments, private endpoint configuration, and the designated secret. The lab also authorized an unauthenticated browser check against the second account. The remediation and detection recommendations below are not deployments; I did not deploy them.
 
 ## 1. The data: establish the resource behind the application
 
@@ -30,9 +27,7 @@ I started with the primary storage account and identified its account kind, redu
 | Redundancy | Geo-zone-redundant storage (GZRS) | A resilience configuration, separate from access control |
 | Blob endpoint | Recorded and correlated with the lab's data-access trace | Identifies the storage service being investigated |
 
-The endpoint gave me a resource to follow across configuration, networking, and identity. The fact that Azure publishes a service hostname does not, by itself, establish that the data is publicly readable.
-
-GZRS answered a different question: how the data is replicated for resilience. Redundancy doesn't determine who can retrieve a blob, and it doesn't compensate for an exposed export.
+Found the blob hostname in the account storage account from the JSON. Remember that this hostname is what will appear in connection strings, DNS logs, and in the application's own configuration. 
 
 <img width="1872" height="854" alt="screenshot-2026-10-20_11-34-44-redacted" src="https://github.com/user-attachments/assets/311ebd40-df44-4ed8-b666-cfe5fc797f9b" />
 
@@ -44,8 +39,6 @@ The primary account had **Allow storage account key access disabled**. I then ch
 This is a blob-data role, not the general Azure **Contributor** management role. It grants read, write, and delete access to blob data. The application therefore had more than read-only data permissions. Whether delete capability and account-wide scope were necessary would require a review of the application's actual operations. [1]
 
 Disabling Shared Key blocks account-key authorization and account-key-signed SAS requests for Blob Storage. It does **not** rule out a user delegation SAS backed by Microsoft Entra ID, and it is not a substitute for checking anonymous access separately. [2]
-
-The useful conclusion was specific: the primary account rejected the account-key path, and the application's identity had an explicit blob-data role. I did not treat one toggle as proof that every possible access path was secure.
 
 <img width="1144" height="850" alt="screenshot-2026-10-20_14-36-03-redacted" src="https://github.com/user-attachments/assets/4f2466c0-5531-4947-8dad-062e98a28677" />
 
@@ -59,11 +52,9 @@ The primary account's public network access was disabled. An approved private en
 
 Those observations supported the intended path: an application with suitable network connectivity resolves the storage hostname to the private endpoint and reaches Blob Storage over Private Link. Public network access must be checked separately because creating a private endpoint does not automatically disable the public endpoint. [3]
 
-I inspected configuration rather than capturing traffic from the running application. I did not record a DNS lookup from the application host, validate its VNet integration, or execute a storage request from that host. Those would be the next checks before calling this an end-to-end runtime validation.
-
 <img width="1845" height="856" alt="screenshot-2026-10-20_14-55-18-redacted" src="https://github.com/user-attachments/assets/9753c9c4-e0b6-4a05-87a4-634060182bed" />
 
-Likewise, private access is not limited to a client physically inside one VNet. A connected network can use the endpoint if routing and DNS are configured appropriately. The endpoint configuration establishes the intended route; it doesn't prove every client can use it.
+Likewise, private access is not limited to a client physically inside one VNet. A connected network can use the endpoint if routing and DNS are configured appropriately. 
 
 ## 4. The secret: separate vault access from storage access
 
@@ -76,10 +67,6 @@ Vault access and storage access are separate authorization decisions. Permission
 <img width="1024" height="669" alt="screenshot-2026-10-20_15-14-22-redacted" src="https://github.com/user-attachments/assets/0cd6c0de-c5d7-4e4c-a50a-0c33e2263f5d" />
 
 I completed the authorized secret retrieval, but did not review application source code, deployment settings, or runtime secret-access logs. I therefore would not claim to have proved that no credentials existed elsewhere or that every application request used the intended identity. Those conclusions need additional evidence.
-
-### Response to the developer
-
-> The primary data account has Shared Key access disabled and public network access disabled. Its approved private endpoint and DNS configuration support the intended private route, and the application identity has Storage Blob Data Contributor permissions. I also retrieved the designated Key Vault secret under the lab's scoped authorization. Validating DNS and a data request from the application host would complete the runtime check. Separately, I found a second storage account exposing a customer export anonymously; that requires attention beyond the original ticket.
 
 ## 5. The second copy: widen the review
 
@@ -98,11 +85,11 @@ The second account's two account-level settings were warning signs, but not enou
 
 <img width="1879" height="872" alt="screenshot-2026-10-20_15-58-29-redacted" src="https://github.com/user-attachments/assets/3b9a099b-37e6-4783-9f75-75ff3b627a8b" />
 
-The decisive evidence was the browser result. Following the lab's unauthenticated test procedure, I obtained a container listing and then opened the listed JSON export without supplying credentials or a SAS token. The listing exposed object metadata; the subsequent request returned the export content. That moved the finding from a potentially unsafe setting to confirmed anonymous read access in the lab.
+The decisive evidence was the browser result. Following the lab's unauthenticated test procedure, I obtained a container listing, then opened the listed JSON export without credentials or a SAS token. The listing exposed object metadata; the subsequent request returned the export content. That moved the finding from a potentially unsafe setting to confirmed anonymous read access in the lab.
 
 <img width="1872" height="858" alt="screenshot-2026-10-20_15-59-26-redacted" src="https://github.com/user-attachments/assets/c318d3c5-5d10-47cb-bea2-8c190bb72b50" />
 
-The lab scenario explained that a temporary export had been created for migration testing and left behind afterward. That history came from the exercise narrative. My observations independently established the exposure but did not identify who created the account, when the exposure began, or whether another party accessed it.
+The lab scenario explained that a temporary export had been created for migration testing and left behind afterward. That history came from the exercise narrative. My independent observations confirmed the exposure but did not identify who created the account, when the exposure began, or whether another party accessed it.
 
 <img width="788" height="425" alt="screenshot-2026-10-20_15-38-41-redacted" src="https://github.com/user-attachments/assets/f198bd89-8f77-4832-8e98-7f6a8955fa7e" />
 
@@ -118,7 +105,7 @@ The lab scenario explained that a temporary export had been created for migratio
 
 **Not demonstrated:** Anonymous write or delete access, access to every container in the account, a byte-for-byte comparison with the primary dataset, or access by a third party.
 
-The failure was a gap in protecting data copies. Reviewing only the primary resource would have produced a reassuring answer while leaving the exposed export unaddressed.
+The failure was a gap in protecting data copies. Reviewing only the primary resource would have provided reassurance while leaving the exposed export unaddressed.
 
 ## Recommended response and verification
 
@@ -150,7 +137,7 @@ For a newly created storage account, Policy provides preventive checks. Inventor
 - Approved application reads and writes still work through the intended identity and private route.
 - A controlled attempt to deploy a disallowed account configuration is denied by the assigned policy.
 - An authorized test in an isolated validation environment produces the expected telemetry and alert before that environment is removed.
-- Every reviewed export has an accountable owner, retention requirement, and approved access model.
+- Every reviewed export should have an accountable owner, retention requirement, and approved access model.
 
 ## Evidence and confidence
 
@@ -164,11 +151,11 @@ For a newly created storage account, Policy provides preventive checks. Inventor
 
 ## What I learned
 
-The first four stops established what the intended protected path looked like. The fifth changed the scope of the answer.
+Protecting the primary account is necessary; however, protecting customer data also means finding and securing its exports, backups, and temporary copies. In this case, the most important item was a temporary copy of customer data in a public-facing container because an old migration left a developer-spun-up storage account in a separate account. 
 
-I needed to distinguish a role from its scope, a published hostname from public data access, and a configured private endpoint from a tested application connection. Most of all, I needed to ask where else the data lived.
+### Response to the developer
 
-Protecting the primary account is necessary. Protecting customer data also means finding and securing its exports, backups, and temporary copies.
+> The primary data account has Shared Key access disabled and public network access disabled. Its approved private endpoint and DNS configuration support the intended private route, and the application identity has Storage Blob Data Contributor permissions. I also retrieved the designated Key Vault secret under the lab's scoped authorization. Validating DNS and a data request from the application host would complete the runtime check. Separately, I found a second storage account exposing a customer export anonymously; that requires attention beyond the original ticket.
 
 ## References
 
