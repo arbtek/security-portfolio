@@ -47,13 +47,21 @@ Disabling Shared Key blocks account-key authorization and account-key-signed SAS
 
 The useful conclusion was specific: the primary account rejected the account-key path, and the application's identity had an explicit blob-data role. I did not treat one toggle as proof that every possible access path was secure.
 
+<img width="1144" height="850" alt="screenshot-2026-10-20_14-36-03-redacted" src="https://github.com/user-attachments/assets/4f2466c0-5531-4947-8dad-062e98a28677" />
+
+<img width="1834" height="720" alt="screenshot-2026-10-20_14-46-52-redacted" src="https://github.com/user-attachments/assets/8d55e232-2c72-4997-ae03-413c9fe028ac" />
+
 ## 3. The network: confirm the intended private route
 
 The primary account's public network access was disabled. An approved private endpoint was present, and its DNS configuration showed a private IP address in the endpoint subnet.
 
+<img width="1467" height="803" alt="screenshot-2026-10-20_14-52-58-redacted" src="https://github.com/user-attachments/assets/04dd0cc1-6735-4229-9d8f-8e5dc13e1478" />
+
 Those observations supported the intended path: an application with suitable network connectivity resolves the storage hostname to the private endpoint and reaches Blob Storage over Private Link. Public network access must be checked separately because creating a private endpoint does not automatically disable the public endpoint. [3]
 
 I inspected configuration rather than capturing traffic from the running application. I did not record a DNS lookup from the application host, validate its VNet integration, or execute a storage request from that host. Those would be the next checks before calling this an end-to-end runtime validation.
+
+<img width="1845" height="856" alt="screenshot-2026-10-20_14-55-18-redacted" src="https://github.com/user-attachments/assets/9753c9c4-e0b6-4a05-87a4-634060182bed" />
 
 Likewise, private access is not limited to a client physically inside one VNet. A connected network can use the endpoint if routing and DNS are configured appropriately. The endpoint configuration establishes the intended route; it doesn't prove every client can use it.
 
@@ -64,6 +72,8 @@ My resource-group Reader role let me inspect the configuration. The separate **K
 The lab describes an application pattern that uses a managed identity to authenticate to Key Vault and retrieve the value at runtime. Microsoft documents this approach for applications that need secrets without embedding vault access credentials in their code. [4]
 
 Vault access and storage access are separate authorization decisions. Permission to retrieve a secret does not automatically grant permission to read blobs, and a connection string alone does not establish network reachability.
+
+<img width="1024" height="669" alt="screenshot-2026-10-20_15-14-22-redacted" src="https://github.com/user-attachments/assets/0cd6c0de-c5d7-4e4c-a50a-0c33e2263f5d" />
 
 I completed the authorized secret retrieval, but did not review application source code, deployment settings, or runtime secret-access logs. I therefore would not claim to have proved that no credentials existed elsewhere or that every application request used the intended identity. Those conclusions need additional evidence.
 
@@ -86,9 +96,17 @@ Before closing the ticket, I reviewed the resource-group inventory and investiga
 
 The second account's two account-level settings were warning signs, but not enough to prove a particular blob was exposed. Azure also requires the container to permit anonymous access. A container can permit blob reads without permitting listing; container-level public access can permit both. [5]
 
+<img width="1879" height="872" alt="screenshot-2026-10-20_15-58-29-redacted" src="https://github.com/user-attachments/assets/3b9a099b-37e6-4783-9f75-75ff3b627a8b" />
+
 The decisive evidence was the browser result. Following the lab's unauthenticated test procedure, I obtained a container listing and then opened the listed JSON export without supplying credentials or a SAS token. The listing exposed object metadata; the subsequent request returned the export content. That moved the finding from a potentially unsafe setting to confirmed anonymous read access in the lab.
 
+<img width="1872" height="858" alt="screenshot-2026-10-20_15-59-26-redacted" src="https://github.com/user-attachments/assets/c318d3c5-5d10-47cb-bea2-8c190bb72b50" />
+
 The lab scenario explained that a temporary export had been created for migration testing and left behind afterward. That history came from the exercise narrative. My observations independently established the exposure but did not identify who created the account, when the exposure began, or whether another party accessed it.
+
+<img width="788" height="425" alt="screenshot-2026-10-20_15-38-41-redacted" src="https://github.com/user-attachments/assets/f198bd89-8f77-4832-8e98-7f6a8955fa7e" />
+
+<img width="937" height="348" alt="screenshot-2026-10-20_15-38-07-redacted" src="https://github.com/user-attachments/assets/93c36c2d-1a25-4024-a050-d786b767caad" />
 
 ## Finding: anonymous access to a customer-data export
 
@@ -109,8 +127,8 @@ These are proposed production actions for the resource owner and incident-respon
 1. **Record the exposure and identify dependencies.** Preserve relevant configuration, timestamps, and available logs while coordinating prompt containment with the owner. Establish whether any legitimate consumer relies on the public path.
 2. **Remove anonymous access.** Set the account's `allowBlobPublicAccess` to `false` and make the affected container private. If public network access is unnecessary, disable it after confirming the replacement private route. [6]
 3. **Retest both sides.** From an unauthenticated external client, confirm that listing and a known export URL no longer return data. From the approved application path, verify that required operations still succeed.
-4. **Determine the exposure window.** Review resource changes and available blob access logs. The absence of historical logs limits your ability to determine who accessed the data; it does not prove nobody did.
-5. **Review the export's contents and disposition.** If it contains reusable credentials, coordinate their rotation or revocation. After you address retention and evidence requirements, remove the unnecessary copy or move it to approved storage.
+4. **Determine the exposure window.** Review resource changes and available blob access logs. The lack of historical logs limits your ability to determine who accessed the data; it doesn't prove no one did.
+5. **Review the export's contents and disposition.** If it contains reusable credentials, coordinate their rotation or revocation. After you address retention and evidence requirements, remove unnecessary copies or move them to approved storage.
 6. **Find other copies.** Review export, migration, test, and backup storage beyond this resource group using the appropriate authorized scope. Assign an owner and an expiry date to temporary resources.
 
 ## Detection and prevention at scale
