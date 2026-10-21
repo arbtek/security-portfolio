@@ -19,7 +19,7 @@ Contact: setesham at proton dot me
 | 3 | Privilege Audit | RBAC and least privilege | [Audit](https://github.com/arbtek/security-portfolio/blob/main/privilege_audit.md) |
 | 4 | Spin Up and Lock Down | Compute attack surface | [Pre-production Review](https://github.com/arbtek/security-portfolio/blob/main/friday_deploy.md) |
 | 5 | Network the Operative | Network segmentation | [Network Path](https://github.com/arbtek/security-portfolio/blob/main/network_like_an_operative.md) |
-| 6 | Bucket Looting | Storage exposure hunting | [Pipeline](https://github.com/arbtek/security-portfolio/blob/main/investigation_loot.md) |
+| 6 | Bucket Looting | Storage exposure hunting | [Looting](https://github.com/arbtek/security-portfolio/blob/main/investigation_loot.md) |
 | 7 | Find the Anomaly | Log analysis and KQL | coming, week 7 |
 | 8 | Hunt the Threat | SIEM operations (Sentinel) | coming, week 8 |
 | 9 | Score the Tenant | Cloud security posture | coming, week 9 |
