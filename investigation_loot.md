@@ -11,7 +11,8 @@ I traced the primary storage account through its authentication settings, manage
 
 The primary account's controls still protected that account. They did not protect the export stored elsewhere.
 
-![Primary storage protected by identity and private networking, beside a second copy reachable anonymously](assets/storage-contrast.svg)
+<img width="960" height="540" alt="storage-contrast" src="https://github.com/user-attachments/assets/7700cf17-112c-4c74-81dd-fe68e054d2a1" />
+
 
 ### Scope and authority
 
