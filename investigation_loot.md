@@ -34,6 +34,9 @@ The endpoint gave me a resource to follow across configuration, networking, and 
 
 GZRS answered a different question: how the data is replicated for resilience. Redundancy doesn't determine who can retrieve a blob, and it doesn't compensate for an exposed export.
 
+<img width="1872" height="854" alt="screenshot-2026-10-20_11-34-44-redacted" src="https://github.com/user-attachments/assets/311ebd40-df44-4ed8-b666-cfe5fc797f9b" />
+
+
 ## 2. The key posture: determine how access is authorized
 
 The primary account had **Allow storage account key access disabled**. I then checked the application's user-assigned managed identity in IAM and found **Storage Blob Data Contributor** assigned at the storage account scope.
