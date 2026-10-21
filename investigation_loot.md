@@ -153,6 +153,8 @@ For a newly created storage account, Policy provides preventive checks. Inventor
 
 Protecting the primary account is necessary; however, protecting customer data also means finding and securing its exports, backups, and temporary copies. In this case, the most important item was a temporary copy of customer data in a public-facing container because an old migration left a developer-spun-up storage account in a separate account. 
 
+In real production environments, this happens at even the most experienced companies. Back in 2023, Microsoft AI researchers exposed 38 TB of data via [one misconfigured SAS token](https://www.wiz.io/blog/38-terabytes-of-private-data-accidentally-exposed-by-microsoft-ai-researchers) 
+
 ### Response to the developer
 
 > The primary data account has Shared Key access disabled and public network access disabled. Its approved private endpoint and DNS configuration support the intended private route, and the application identity has Storage Blob Data Contributor permissions. I also retrieved the designated Key Vault secret under the lab's scoped authorization. Validating DNS and a data request from the application host would complete the runtime check. Separately, I found a second storage account exposing a customer export anonymously; that requires attention beyond the original ticket.
