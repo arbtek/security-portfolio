@@ -4,8 +4,12 @@ Documented cloud security investigations, built in a live Azure tenant
 (Mad Hat Labs, a multi-user training environment).
 
 Target role: Cloud Security Engineer
-Currently: [Security Operations & Infrastructure Engineer]
-Contact: [setesham at proton dot me] · [[LinkedIn URL](https://www.linkedin.com/in/siavashetesham/)]
+
+Currently: Security Operations & Infrastructure Engineer
+
+Contact: setesham at proton dot me · 
+
+[[LinkedIn URL](https://www.linkedin.com/in/siavashetesham/)]
 
 ## Investigations
 | # | Title | Focus | Write-up |
