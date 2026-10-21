@@ -90,7 +90,7 @@ Before closing the ticket, I reviewed the resource-group inventory and investiga
 | Public network access | Disabled | Enabled |
 | Shared Key authorization | Disabled | Not established in this review |
 | Private endpoint | Approved endpoint observed | Not needed for the observed anonymous path |
-| Account allows anonymous blob access | Not separately documented in my notes | Allowed |
+| Account allows anonymous blob access | Disabled | Allowed |
 | Unauthenticated container listing | Not tested | Listing returned |
 | Unauthenticated export read | Not tested | JSON export returned |
 
@@ -141,8 +141,6 @@ I would combine configuration enforcement with data-access monitoring rather tha
 | Posture | Inventory storage accounts that allow anonymous access; review container settings and network exposure | Finds exposure candidates, including accounts that receive no traffic |
 | Change monitoring | Monitor successful account and container changes, then evaluate resulting configuration | Detects regressions; a generic write event alone does not prove public access |
 | Data-access monitoring | Collect Blob read logs and alert on successful anonymous listing or retrieval for accounts intended to be private | Shows use of the anonymous access path |
-
-The included `detections.kql` contains an Azure Resource Graph posture query and a Log Analytics query for successful anonymous reads. They are proposed starting points, checked against the documented schema but **not executed in this lab**. The access query requires resource-specific Blob logs in `StorageBlobLogs`; log collection is not retroactive. [6][7]
 
 For a newly created storage account, Policy provides preventive checks. Inventory and log alerts cover existing resources and changes. An alert after access has occurred cannot replace a deployment control.
 
