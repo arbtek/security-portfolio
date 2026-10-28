@@ -9,9 +9,9 @@ Currently: Security Operations & Infrastructure Engineer
 
 Contact: setesham at proton dot me
 
-[[LinkedIn](https://www.linkedin.com/in/siavashetesham/)]
+[LinkedIn](https://www.linkedin.com/in/siavashetesham/)
 
-[Portfolio(https://siavashetesham.com/)]
+[Portfolio](https://siavashetesham.com/)
 
 ## Investigations
 | # | Title | Focus | Write-up |
