@@ -1,6 +1,6 @@
 # Find the Anomaly: A KQL Threat Hunt and Two Monitoring Gaps
 
-**Siavash Etesham** | Azure Log Analytics · KQL · Azure Monitor · Detection Engineering
+Azure Log Analytics · KQL · Azure Monitor · Detection Engineering
 
 I investigated a simulated suspicious-account ticket in an unfamiliar Azure Log Analytics workspace. The hunt isolated one account with a disproportionate number of unsuccessful sign-ins and exposed two separate monitoring failures: deleted storage diagnostic settings and sign-in alert logic whose threshold excluded the observed activity.
 
@@ -60,7 +60,7 @@ LabSigninLogs_CL
 | order by TimeGenerated asc
 ```
 
-Nonzero results are a starting filter, not proof of password guessing. Microsoft documents `50126` as invalid username or password and `50127` as a missing broker application. I would validate each result's meaning against the event details before classifying the authentication activity. [1]
+Nonzero results are a starting filter, not proof of password guessing. Microsoft documents `50126` as an invalid username or password and `50127` as a missing broker application. I would validate each result's meaning against the event details before classifying the authentication activity. [1]
 
 ## The gap
 
@@ -72,7 +72,7 @@ The storage diagnostic-settings view showed logging disabled. That established a
 
 ![Successful diagnostic-setting deletion event with identifiers and timestamp removed](assets/find-the-anomaly/03-diagnostic-setting-deletion.png)
 
-The impact was a loss of storage data-plane visibility: without those resource logs, the defender cannot reconstruct who reached the data, which operations they performed, and how they authenticated from that logging path. A management-plane deletion event can explain why collection stopped; it does not substitute for the missing data-access records. Azure Activity Log collection and resource-log collection are separate mechanisms. [2][3]
+The impact was a loss of storage data-plane visibility: without those resource logs, the defender cannot reconstruct who accessed the data, what operations they performed, or how they authenticated through that logging path. A management-plane deletion event can explain why collection stopped; it does not substitute for the missing data-access records. Azure Activity Log collection and resource-log collection are separate mechanisms. [2][3]
 
 Disabling cloud logging is consistent with **MITRE ATT&CK T1685.002, Disable or Modify Cloud Log**. The deletion is evidence of logging impairment; establishing malicious intent or attributing it to the suspicious account would require the caller, authorization context, and surrounding activity. [4]
 
@@ -82,7 +82,7 @@ The authentication records were present and queryable. I reviewed the failed-sig
 
 ![A query replay returns the suspicious account after lowering the cutoff; identity and cutoff are redacted](assets/find-the-anomaly/04-detection-query-replay.png)
 
-This was a detection-logic gap, separate from the storage collection gap. Raising a blanket threshold may reduce alert volume while also excluding the behavior the rule was intended to catch. The replay demonstrated that the account could satisfy a lower cutoff; it did not demonstrate a saved rule change or an end-to-end notification.
+This was a detection-logic gap, separate from the storage collection gap. Raising a blanket threshold may reduce alert volume while also excluding the behavior the rule was intended to catch. The replay showed the account could satisfy a lower cutoff; it did not show a saved rule change or an end-to-end notification.
 
 Before promoting a fix, I would test the same aggregation, time window, evaluation frequency, and trigger operator used by the deployed rule. A seven-day hunt total cannot automatically be compared with a short-window scheduled rule, and `>` and `>=` differ at the boundary. I would also verify that an enabled rule routes to a working action group. [5]
 
@@ -100,16 +100,12 @@ A workbook gives an analyst another way to spot a rule miss. It still depends on
 
 1. **Restore storage logging.** Re-create the required diagnostic settings for the affected storage services, enable the needed read/write/delete categories, and verify fresh events reach the intended workspace. Re-enabling collection does **not** retroactively recover missing events; check any independent retained copies separately. [3]
 2. **Enforce coverage with Azure Policy.** Assign diagnostic-setting policies at the appropriate scope, including the relevant storage service resources and destinations. Use `deployIfNotExists` with a correctly permissioned managed identity, remediate existing noncompliant resources, and monitor compliance. Policy evaluation is not an instant tamper alert. [6]
-3. **Alert on removal.** Create an Activity Log alert for `Microsoft.Insights/diagnosticSettings/delete`, route successful deletions to an owned action group, and test delivery. Review diagnostic-setting updates that disable categories or change destinations as well. [5]
+3. **Alert on removal.** Create an Activity Log alert for `Microsoft.Insights/diagnosticSettings/delete`, route successful deletions to an owned action group, and test delivery. Also review diagnostic-setting updates that disable categories or change destinations. [5]
 4. **Retune and validate the sign-in detection.** Narrow by account, source, application, and credential-related failure codes before increasing thresholds. Replay suspicious and benign periods using the rule's actual window, test the resulting notification, and retain a workbook with a documented review cadence as a second check.
 
 ## Sign-off
 
 I oriented in an unfamiliar workspace, narrowed the hunt to one account, identified logging impairment and an alert-logic gap, and checked the pattern in a workbook; remediation and alert-delivery validation remain follow-up actions.
-
-## Query companion
-
-The [KQL companion](queries/find-the-anomaly/README.md) contains the discovery, ranking, timeline, logging-change, and visualization queries. These use sanitized parameters and distinguish the lab's custom schema from production Entra sign-in tables.
 
 ## References
 
