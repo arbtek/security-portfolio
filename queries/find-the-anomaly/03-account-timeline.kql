@@ -1,0 +1,9 @@
+// Sanitized example dates and account: replace before execution.
+let InvestigationStart = datetime(2026-01-01T00:00:00Z);
+let InvestigationEnd = datetime(2026-01-08T00:00:00Z);
+let TargetAccount = "account-a@example.invalid";
+LabSigninLogs_CL
+| where TimeGenerated >= InvestigationStart and TimeGenerated < InvestigationEnd
+| where UserPrincipalName_s =~ TargetAccount
+| project TimeGenerated, ResultType_d, IPAddress_s, AppDisplayName_s
+| order by TimeGenerated asc

@@ -1,0 +1,12 @@
+// Proposed tuning aid, not a deployed rule. No production threshold prescribed.
+// AADSTS50126 means invalid credentials; nonzero codes are not all bad passwords.
+// Replace dates with the evaluation window being tested.
+let WindowStart = datetime(2026-01-01T00:00:00Z);
+let WindowEnd = datetime(2026-01-01T00:15:00Z);
+LabSigninLogs_CL
+| where TimeGenerated >= WindowStart and TimeGenerated < WindowEnd
+| where ResultType_d == 50126
+| summarize CredentialFailures = count(), FirstSeen = min(TimeGenerated),
+            LastSeen = max(TimeGenerated)
+    by UserPrincipalName_s, IPAddress_s
+| order by CredentialFailures desc

@@ -1,0 +1,11 @@
+// Sanitized example dates. AzureActivity must be available in this workspace.
+// ResourceId and Caller may contain sensitive identifiers; review before export.
+let InvestigationStart = datetime(2026-01-01T00:00:00Z);
+let InvestigationEnd = datetime(2026-01-08T00:00:00Z);
+AzureActivity
+| where TimeGenerated >= InvestigationStart and TimeGenerated < InvestigationEnd
+| where OperationNameValue =~ "Microsoft.Insights/diagnosticSettings/delete"
+| where ActivityStatusValue in~ ("Success", "Succeeded")
+| project TimeGenerated, OperationNameValue, ActivityStatusValue,
+          Caller, ResourceId, CorrelationId
+| order by TimeGenerated asc

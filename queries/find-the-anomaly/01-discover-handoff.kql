@@ -1,0 +1,3 @@
+// Replace the case identifier. Select the incident's time range in Logs.
+// Use broad search for discovery, then pivot to specific tables.
+search "CASE-EXAMPLE"

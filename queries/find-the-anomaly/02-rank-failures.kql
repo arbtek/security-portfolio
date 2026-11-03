@@ -1,0 +1,8 @@
+// Sanitized example dates: replace with the actual case window.
+let InvestigationStart = datetime(2026-01-01T00:00:00Z);
+let InvestigationEnd = datetime(2026-01-08T00:00:00Z);
+LabSigninLogs_CL
+| where TimeGenerated >= InvestigationStart and TimeGenerated < InvestigationEnd
+| where isnotnull(ResultType_d) and ResultType_d != 0
+| summarize FailedSignins = count() by UserPrincipalName_s
+| top 10 by FailedSignins desc
