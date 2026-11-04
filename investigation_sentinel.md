@@ -1,7 +1,7 @@
 # Inside the SOC: Account Compromise and Solorigate Threat Hunting
 
-**Microsoft Sentinel incident investigation | Mad Hat Labs, Chapter 8**  
-**Tools:** Microsoft Sentinel, Microsoft Defender portal, KQL, ASIM
+**Microsoft Sentinel incident investigation**  
+**Tools:** Microsoft Sentinel, Microsoft Defender, KQL, ASIM
 
 ## Investigation overview
 
