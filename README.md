@@ -23,6 +23,6 @@ Contact: setesham at proton dot me
 | 5 | Network the Operative | Network segmentation | [Network Path](https://github.com/arbtek/security-portfolio/blob/main/network_like_an_operative.md) |
 | 6 | Bucket Looting | Storage exposure hunting | [Looting](https://github.com/arbtek/security-portfolio/blob/main/investigation_loot.md) |
 | 7 | Find the Anomaly | Log analysis and KQL | [Anomaly](https://github.com/arbtek/security-portfolio/blob/main/investigation_find_the_anomaly.md)|
-| 8 | Hunt the Threat | SIEM operations (Sentinel) | coming|
+| 8 | Hunt the Threat | SIEM operations (Sentinel) | [Sentinel Investigation](https://github.com/arbtek/security-portfolio/blob/main/investigation_sentinel.md)|
 | 9 | Score the Tenant | Cloud security posture | coming|
 | 10 | The Breach (capstone) | Full incident investigation | coming|
