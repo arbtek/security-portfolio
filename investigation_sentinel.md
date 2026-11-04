@@ -138,16 +138,6 @@ let timeframe = 180d;
 
 **What this established:** The investigation extended beyond the DNS alert to hosts with matching endpoint indicator evidence. The exact host total is withheld as a lab answer. The supplied notes record the scope result, but do not include an inventory-results screenshot.
 
-**Counting and schema caveats:** This query groups by **host and account**, so its row count must not automatically be reported as a unique-host count. The Sysmon branch creates `Account`, while the final projection reads `Account_s`; I would normalize the account columns across branches and validate the XML field positions before operational reuse. `isfuzzy=true` can tolerate some source-resolution failures, so I would also inspect warnings and confirm which sources actually contributed evidence.
-
-For a follow-up scope check, after validating the returned host field, replace the final host-account summary with the following. This is a proposed refinement, not an additional query I claim to have run:
-
-```kusto
-| where isnotempty(HostCustomEntity)
-| summarize by HostCustomEntity
-| summarize AffectedHostCount = count()
-```
-
 **3. Trace the DNS evidence to its source.** I inspected the alert's underlying events and identified the vendor-specific custom DNS table used by the training dataset. The screenshot shows common fields such as `DnsQuery`, `SrcIpAddr`, `EventResult`, and `DnsQueryTypeName`, illustrating the normalized view the detection content consumes. The table answer and provider-identifying values are removed from this public report.
 
 ![Underlying DNS event with source table, vendor details, domain, and IP values removed](assets/05-normalized-dns-evidence.png)
