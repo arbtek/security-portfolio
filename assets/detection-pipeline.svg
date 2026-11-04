@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="240" viewBox="0 0 1600 240" role="img" aria-labelledby="title desc">
+<title id="title">DNS detection and investigation pipeline</title>
+<desc id="desc">DNS collection and replay import leads to a custom source table, an ASIM DNS parser, scheduled analytics with an alert and incident, and analyst triage supported by an endpoint hunt.</desc>
+<rect width="1600" height="240" fill="#f5f8fc"/>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 Z" fill="#527491"/></marker></defs>
+<rect x="20" y="55" width="292" height="126" rx="12" fill="#ffffff" stroke="#527491" stroke-width="2"/>
+<text x="166" y="104" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="20" font-weight="bold" fill="#16324f">DNS logs</text>
+<text x="166" y="141" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="17" fill="#425b70">Collection / replay import</text>
+<line x1="314" y1="118" x2="327" y2="118" stroke="#527491" stroke-width="2"/>
+<path d="M325,113 L333,118 L325,123 Z" fill="#527491"/>
+<rect x="336" y="55" width="292" height="126" rx="12" fill="#ffffff" stroke="#527491" stroke-width="2"/>
+<text x="482" y="104" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="20" font-weight="bold" fill="#16324f">Custom source table</text>
+<text x="482" y="141" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="17" fill="#425b70">Stored DNS telemetry</text>
+<line x1="630" y1="118" x2="643" y2="118" stroke="#527491" stroke-width="2"/>
+<path d="M641,113 L649,118 L641,123 Z" fill="#527491"/>
+<rect x="652" y="55" width="292" height="126" rx="12" fill="#ffffff" stroke="#527491" stroke-width="2"/>
+<text x="798" y="104" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="20" font-weight="bold" fill="#16324f">ASIM DNS parser</text>
+<text x="798" y="141" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="17" fill="#425b70">Common event fields</text>
+<line x1="946" y1="118" x2="959" y2="118" stroke="#527491" stroke-width="2"/>
+<path d="M957,113 L965,118 L957,123 Z" fill="#527491"/>
+<rect x="968" y="55" width="292" height="126" rx="12" fill="#ffffff" stroke="#527491" stroke-width="2"/>
+<text x="1114" y="104" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="20" font-weight="bold" fill="#16324f">Scheduled analytics</text>
+<text x="1114" y="141" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="17" fill="#425b70">Alert and incident</text>
+<line x1="1262" y1="118" x2="1275" y2="118" stroke="#527491" stroke-width="2"/>
+<path d="M1273,113 L1281,118 L1273,123 Z" fill="#527491"/>
+<rect x="1284" y="55" width="292" height="126" rx="12" fill="#ffffff" stroke="#527491" stroke-width="2"/>
+<text x="1430" y="104" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="20" font-weight="bold" fill="#16324f">Triage and host scoping</text>
+<text x="1430" y="141" text-anchor="middle" font-family="DejaVu Sans,sans-serif" font-size="17" fill="#425b70">DNS review + endpoint hunt</text>
+</svg>
