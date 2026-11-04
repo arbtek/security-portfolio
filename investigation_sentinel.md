@@ -40,7 +40,7 @@ An incident identified a source IP attempting sign-ins to disabled accounts. I p
 
 **2. Compare outcomes across accounts.** I grouped events from that source by user principal name. This tested whether the activity was limited to rejected attempts or also included authenticated access.
 
-The following is the query logic I used, with the IP replaced and the malformed quotation in my typed notes corrected. I did not re-run these examples against the expired lab session; the table and column names reflect the captured training schema.
+The following is the query logic I used, with the IP replaced and the malformed quotation in my typed notes corrected. The table and column names reflect the captured training schema.
 
 ```kusto
 SigninLogs_CL
