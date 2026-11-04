@@ -1,14 +1,13 @@
 # Inside the SOC: Account Compromise and Solorigate Threat Hunting
 
 **Microsoft Sentinel incident investigation | Mad Hat Labs, Chapter 8**  
-**Author:** Siavash Etesham  
 **Tools:** Microsoft Sentinel, Microsoft Defender portal, KQL, ASIM
 
 ## Investigation overview
 
 I investigated two incidents in a Microsoft Sentinel workspace using Microsoft's pre-recorded training telemetry. The first began with a source IP attempting authentication against disabled accounts; a KQL pivot showed successful authentication to one user account. The second began with a DNS match to known Solorigate command-and-control infrastructure; an endpoint indicator hunt expanded the investigation beyond the initially identified host.
 
-The objective was to turn alerts into defensible decisions: identify the affected entities, distinguish observed behavior from potential impact, establish the available scope, and recommend containment. My access was limited to Microsoft Sentinel Reader and resource Reader. Severity and classification below are my analyst assessments; response actions are recommendations, with no claim that I changed incident state, isolated devices, or reset credentials.
+The objective was to turn alerts into defensible decisions: identify the affected entities, distinguish observed behavior from potential impact, establish the available scope, and recommend containment. My access was limited to Microsoft Sentinel Reader and Resource Reader. The severity and classification below are my assessments; response actions are recommendations, and I did not change incident state, isolate devices, or reset credentials.
 
 Entity values, environment identifiers, the exact affected-host total, and the DNS source table answer are withheld. Screenshots use permanent pixel redactions, and query literals use placeholders.
 
@@ -37,11 +36,11 @@ An incident identified a source IP attempting sign-ins to disabled accounts. I p
 
 ![Authentication incident and IP entity with identifying values removed](assets/01-authentication-incident.png)
 
-*The incident supplied the initial source-IP lead. Its displayed severity preceded the successful-sign-in pivot.*
+*The incident supplied the initial source-IP lead. Its displayed severity preceded the successful sign-in pivot.*
 
 **2. Compare outcomes across accounts.** I grouped events from that source by user principal name. This tested whether the activity was limited to rejected attempts or also included authenticated access.
 
-The following is the query logic I used, with the IP replaced and the malformed quotation in my typed notes corrected. These examples have not been re-executed against the expired lab session; the table and column names reflect the captured training schema.
+The following is the query logic I used, with the IP replaced and the malformed quotation in my typed notes corrected. I did not re-run these examples against the expired lab session; the table and column names reflect the captured training schema.
 
 ```kusto
 SigninLogs_CL
@@ -88,7 +87,7 @@ The disabled-account context came from the incident and the lab investigation. A
 
 ### Severity and classification
 
-**Severity: High. Classification: True positive within the training scenario. Immediate escalation to incident response recommended.**
+**Severity: High. Classification: True positive within the training scenario. Immediate escalation to incident response is recommended.**
 
 A DNS match to known C2 infrastructure warranted urgent investigation. The subsequent endpoint hunt strengthened the assessment by finding related indicator evidence beyond the initially identified host. The potential exposure of systems and credentials makes this the higher-priority incident, even though the DNS evidence alone does not prove a completed C2 session or data theft.
 
@@ -137,9 +136,9 @@ let timeframe = 180d;
     by HostCustomEntity, AccountCustomEntity
 ```
 
-**What this established:** the investigation extended beyond the DNS alert to hosts with matching endpoint indicator evidence. The exact host total is withheld as a lab answer. The supplied notes record the scope result, but do not include an inventory-results screenshot.
+**What this established:** The investigation extended beyond the DNS alert to hosts with matching endpoint indicator evidence. The exact host total is withheld as a lab answer. The supplied notes record the scope result, but do not include an inventory-results screenshot.
 
-**Counting and schema caveats:** this query groups by **host and account**, so its row count must not automatically be reported as a unique-host count. The Sysmon branch creates `Account`, while the final projection reads `Account_s`; I would normalize the account columns across branches and validate the XML field positions before operational reuse. `isfuzzy=true` can tolerate some source-resolution failures, so I would also inspect warnings and confirm which sources actually contributed evidence.
+**Counting and schema caveats:** This query groups by **host and account**, so its row count must not automatically be reported as a unique-host count. The Sysmon branch creates `Account`, while the final projection reads `Account_s`; I would normalize the account columns across branches and validate the XML field positions before operational reuse. `isfuzzy=true` can tolerate some source-resolution failures, so I would also inspect warnings and confirm which sources actually contributed evidence.
 
 For a follow-up scope check, after validating the returned host field, replace the final host-account summary with the following. This is a proposed refinement, not an additional query I claim to have run:
 
@@ -149,7 +148,7 @@ For a follow-up scope check, after validating the returned host field, replace t
 | summarize AffectedHostCount = count()
 ```
 
-**3. Trace the DNS evidence to its source.** I inspected the alert's underlying events and identified the vendor-specific custom DNS table used by the training dataset. The screenshot shows common fields such as `DnsQuery`, `SrcIpAddr`, `EventResult`, and `DnsQueryTypeName`, illustrating the normalized view consumed by detection content. The table answer and provider-identifying values are removed from this public report.
+**3. Trace the DNS evidence to its source.** I inspected the alert's underlying events and identified the vendor-specific custom DNS table used by the training dataset. The screenshot shows common fields such as `DnsQuery`, `SrcIpAddr`, `EventResult`, and `DnsQueryTypeName`, illustrating the normalized view the detection content consumes. The table answer and provider-identifying values are removed from this public report.
 
 ![Underlying DNS event with source table, vendor details, domain, and IP values removed](assets/05-normalized-dns-evidence.png)
 
@@ -172,7 +171,7 @@ The original data represented events from a DNS security provider. In this works
 
 *Placeholder labels intentionally omit lab resource names and answers. Endpoint telemetry supplies the final inventory hunt; DNS logs alone do not establish the entire host scope.*
 
-ASIM provides common fields across supported sources so detection content can query a shared DNS schema. Query-time parsers can normalize existing source records without rewriting the raw table; ASIM also supports ingest-time normalization. The lab's custom-source data and normalized alert fields are consistent with the parser-based approach, but my notes do not capture the deployed parser definition. [Microsoft: ASIM overview](https://learn.microsoft.com/en-us/azure/sentinel/normalization)
+ASIM provides common fields across supported sources so detection content can query a shared DNS schema. Query-time parsers can normalize existing source records without rewriting the raw table; ASIM also supports ingest-time normalization. The lab's custom-source data and normalized alert fields match the parser-based approach, but my notes don't capture the deployed parser definition. [Microsoft: ASIM overview](https://learn.microsoft.com/en-us/azure/sentinel/normalization)
 
 | Stage | Role in this investigation |
 | --- | --- |
@@ -221,7 +220,7 @@ Map the authentication and DNS rules to their supported ATT&CK techniques and ve
 
 I would prioritize the Solorigate incident for immediate IR escalation because the combination of a known C2 indicator and endpoint findings across additional hosts creates a broader containment problem and potential credential exposure. I would arrange identity containment for the authentication incident in parallel: successful access from the probing source also warrants urgent action.
 
-The key decision was to follow what each alert actually established. Authentication failures became an account-compromise concern only after the successful-sign-in pivot; the DNS alert became a broader host investigation after the endpoint hunt. Neither alert volume nor an empty query result was sufficient to determine impact or closure.
+The key decision was to follow what each alert actually established. Authentication failures became an account-compromise concern only after the successful sign-in pivot; the DNS alert became a broader host investigation after the endpoint hunt. Neither alert volume nor an empty query result was sufficient to determine impact or closure.
 
 ---
 
